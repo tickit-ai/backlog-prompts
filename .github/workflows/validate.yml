@@ -1,0 +1,74 @@
+name: Validate Prompts
+
+on:
+  pull_request:
+    branches: [main]
+    paths: ['prompts/**']
+  push:
+    branches: [main]
+    paths: ['prompts/**']
+
+permissions:
+  contents: read
+
+jobs:
+  validate-prompts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate frontmatter
+        run: |
+          errors=0
+          shopt -s globstar nullglob
+          for f in prompts/**/*.md; do
+            # Check file has frontmatter delimiters
+            if ! head -1 "$f" | grep -q '^---$'; then
+              echo "::error file=$f::Missing frontmatter opening delimiter"
+              errors=$((errors + 1))
+              continue
+            fi
+            # Check required fields exist
+            for field in title slug category version description whenToUse; do
+              if ! grep -q "^${field}:" "$f"; then
+                echo "::error file=$f::Missing required field: $field"
+                errors=$((errors + 1))
+              fi
+            done
+            # Validate slug format
+            slug_value=$(grep '^slug:' "$f" | head -1 | sed 's/^slug: *"\?\([^"]*\)"\?/\1/')
+            if ! echo "$slug_value" | grep -qE '^[a-z0-9-]+$'; then
+              echo "::error file=$f::Invalid slug format (must be lowercase alphanumeric with hyphens): $slug_value"
+              errors=$((errors + 1))
+            fi
+            # Validate category
+            category_value=$(grep '^category:' "$f" | head -1 | sed 's/^category: *"\?\([^"]*\)"\?/\1/')
+            case "$category_value" in
+              before-you-code|after-code-generation|product-decisions) ;;
+              *)
+                echo "::error file=$f::Invalid category: $category_value (must be before-you-code, after-code-generation, or product-decisions)"
+                errors=$((errors + 1))
+                ;;
+            esac
+          done
+          if [ $errors -gt 0 ]; then
+            echo "Found $errors validation errors"
+            exit 1
+          fi
+          echo "All prompt files validated successfully"
+
+      - name: Check for secrets
+        run: |
+          errors=0
+          shopt -s globstar nullglob
+          for f in prompts/**/*.md; do
+            if grep -qiE '(api[_-]?key|secret[_-]?key|password|access[_-]?token)\s*[:=]\s*["\x27]?[A-Za-z0-9+/=_-]{16,}' "$f"; then
+              echo "::error file=$f::Possible secret or credential detected"
+              errors=$((errors + 1))
+            fi
+          done
+          if [ $errors -gt 0 ]; then
+            echo "Found $errors potential secrets"
+            exit 1
+          fi
+          echo "No secrets detected"

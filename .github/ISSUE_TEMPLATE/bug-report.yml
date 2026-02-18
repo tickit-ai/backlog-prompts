@@ -1,0 +1,50 @@
+name: Bug Report
+description: Report a problem with an existing prompt
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: input
+    id: prompt
+    attributes:
+      label: Prompt
+      description: Which prompt has the issue?
+      placeholder: "e.g., blast-radius-analyzer"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the problem you encountered.
+      placeholder: "The prompt produces inconsistent output when..."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: model
+    attributes:
+      label: AI Model Used
+      options:
+        - Claude
+        - GPT-4
+        - Gemini
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen?
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context provided
+      description: What context did you provide to the prompt? (Redact any sensitive information)
+    validations:
+      required: false

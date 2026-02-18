@@ -1,0 +1,61 @@
+name: New Prompt Proposal
+description: Propose a new prompt for the library
+title: "[Prompt] "
+labels: ["new-prompt"]
+body:
+  - type: input
+    id: title
+    attributes:
+      label: Prompt Title
+      description: A clear, descriptive name for the prompt
+      placeholder: "e.g., Database Migration Safety Check"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - before-you-code
+        - after-code-generation
+        - product-decisions
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What does this prompt do? When should someone use it?
+      placeholder: "This prompt helps engineers..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: context_fields
+    attributes:
+      label: Context Fields
+      description: What inputs should the user provide? List each field with its name and whether it's required.
+      placeholder: |
+        1. Generated Code (required, long text)
+        2. Testing Framework (required, short text)
+        3. Existing Tests (optional, long text)
+    validations:
+      required: true
+
+  - type: textarea
+    id: draft
+    attributes:
+      label: Draft Prompt (optional)
+      description: If you have a draft of the prompt body, paste it here.
+      placeholder: "You are a senior engineer reviewing..."
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: tested
+    attributes:
+      label: Testing
+      options:
+        - label: I have tested this prompt with at least one AI tool (Claude, GPT-4, Gemini)
