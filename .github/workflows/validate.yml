@@ -29,7 +29,7 @@ jobs:
               continue
             fi
             # Check required fields exist
-            for field in title slug category version description whenToUse; do
+            for field in title slug category version description whenToUse lastUpdated; do
               if ! grep -q "^${field}:" "$f"; then
                 echo "::error file=$f::Missing required field: $field"
                 errors=$((errors + 1))
